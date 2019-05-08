@@ -8,4 +8,8 @@
 /build
 /captures
 .externalNativeBuild
+<<<<<<< HEAD
 Secret.java
+=======
+/.idea/caches
+>>>>>>> 837dc7ef0a8dadca97d0c08af0ab9dae5d106cde
