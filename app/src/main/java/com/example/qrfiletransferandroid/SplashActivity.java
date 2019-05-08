@@ -17,7 +17,7 @@ public class SplashActivity extends AppCompatActivity {
         TextView loading = (TextView) findViewById(R.id.presentBy);
         Animation anim = AnimationUtils.loadAnimation(this,R.anim.splash);
         loading.startAnimation(anim);
-        final Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+        final Intent intent = new Intent(SplashActivity.this, SendActivity.class);
         Thread timer = new Thread(){
             public void run(){
                 try{
