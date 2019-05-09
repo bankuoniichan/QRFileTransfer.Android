@@ -1,11 +1,11 @@
 package com.example.qrfiletransferandroid;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.TextView;
+import android.widget.ImageView;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -14,10 +14,10 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        TextView loading = (TextView) findViewById(R.id.presentBy);
+        ImageView loading = (ImageView) findViewById(R.id.welcome);
         Animation anim = AnimationUtils.loadAnimation(this,R.anim.splash);
         loading.startAnimation(anim);
-        final Intent intent = new Intent(SplashActivity.this, SendActivity.class);
+        final Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
         Thread timer = new Thread(){
             public void run(){
                 try{

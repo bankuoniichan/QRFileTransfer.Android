@@ -5,8 +5,6 @@ import android.os.Bundle;
 
 public class HomeActivity extends AppCompatActivity {
 
-    public static final int LOGIN = 100;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
