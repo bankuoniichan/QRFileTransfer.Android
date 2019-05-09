@@ -2,6 +2,8 @@ package com.example.qrfiletransferandroid;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,6 +12,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Vibrator;
+import android.provider.DocumentsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
@@ -35,9 +39,12 @@ import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class SendActivity extends AppCompatActivity {
 
+    public static MyAppDatabase myAppDatabase;
     private TextView filename;
     private SurfaceView surfaceView;
     private ProgressBar progressBar;
@@ -57,6 +64,7 @@ public class SendActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send);
+        myAppDatabase = MyAppDatabase.getAppDatabase(getApplicationContext());
 
         // bind variable with object
         filename = (TextView) findViewById(R.id.filename_textView);
@@ -144,6 +152,24 @@ public class SendActivity extends AppCompatActivity {
                 params.weight = 1.0f;
                 imageView.setLayoutParams(params);
 
+                String type = "Send";
+                SimpleDateFormat simpleDateFormat_date = new SimpleDateFormat("dd/MM/yyyy");
+                String date = simpleDateFormat_date.format(new Date());
+                SimpleDateFormat simpleDateFormat_time = new SimpleDateFormat("hh:mm:ss");
+                String time = simpleDateFormat_time.format(new Date());
+                String fileName = "TestFile";
+                Log.e("Type: ",type);
+                Log.e("FileName: ",fileName);
+                Log.e("Date: ",date);
+                Log.e("Time: ",time);
+
+                History history = new History();
+                history.setType(type);
+                history.setDate(date);
+                history.setTime(time);
+                history.setFileName(fileName);
+                myAppDatabase.myDao().addHistory(history);
+                Toast.makeText(getApplicationContext(),"History Added Successfully",Toast.LENGTH_SHORT).show();
 //                SurfaceHolder holder = displayView.getHolder();
 //                Canvas canvas = null;
 //                try {

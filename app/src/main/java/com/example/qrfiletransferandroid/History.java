@@ -13,9 +13,11 @@ public class History
     @ColumnInfo
     private String type;
     @ColumnInfo
-    private String time;
+    private String fileName;
     @ColumnInfo
-    private String dataName;
+    private String date;
+    @ColumnInfo
+    private String time;
 
     public int getId() {
         return id;
@@ -33,19 +35,27 @@ public class History
         this.type = type;
     }
 
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
     public String getTime() {
         return time;
     }
 
     public void setTime(String time) {
         this.time = time;
-    }
-
-    public String getDataName() {
-        return dataName;
-    }
-
-    public void setDataName(String dataName) {
-        this.dataName = dataName;
     }
 }

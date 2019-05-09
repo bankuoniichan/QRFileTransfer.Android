@@ -7,12 +7,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.List;
+
 public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.ViewHolder>{
 
-    private String[][] mDataSet;
+    private List<History> mDataSet;
     ItemClickListener mListener;
 
-    public MyRecyclerAdapter(String[][] dataSet){
+    public MyRecyclerAdapter(List<History> dataSet){
         mDataSet = dataSet;
     }
 
@@ -33,8 +35,13 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.Vi
         }
 
         public void setItem(int pos) {
-            name.setText(mDataSet[pos][0]);
-            date.setText("date: " + mDataSet[pos][1]);
+            if (mDataSet.get(pos).getType() == "Receive") {
+            name.setText("You received "+mDataSet.get(pos).getFileName());
+            date.setText("Date: " + mDataSet.get(pos).getDate()+" Time: " + mDataSet.get(pos).getTime());
+            } else {
+                name.setText("You sended "+mDataSet.get(pos).getFileName());;
+                date.setText("Date: " + mDataSet.get(pos).getDate()+" Time: " + mDataSet.get(pos).getTime());
+            }
         }
 
         @Override
@@ -46,6 +53,7 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.Vi
     public void setItemClickListener(ItemClickListener listener){
         mListener = listener;
     }
+
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
@@ -60,7 +68,7 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.Vi
 
         @Override
         public int getItemCount() {
-            return mDataSet.length;
+            return mDataSet.size();
         }
     }
 
