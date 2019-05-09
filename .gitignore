@@ -8,5 +8,8 @@
 /build
 /captures
 .externalNativeBuild
-Secret.java
 /.idea/caches
+
+/.idea/caches/build_file_checksums.ser
+/.idea/caches/gradle_models.ser
+Secret.java
