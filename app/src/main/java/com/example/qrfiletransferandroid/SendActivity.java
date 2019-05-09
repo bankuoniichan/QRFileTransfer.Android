@@ -1,19 +1,14 @@
 package com.example.qrfiletransferandroid;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -34,10 +29,13 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 public class SendActivity extends AppCompatActivity {
 
+    private File file;
     private TextView filename;
     private SurfaceView surfaceView;
     private ProgressBar progressBar;
@@ -61,18 +59,29 @@ public class SendActivity extends AppCompatActivity {
         // bind variable with object
         filename = (TextView) findViewById(R.id.filename_textView);
         surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
+        imageView = (ImageView) findViewById(R.id.imageView);
         progressBar  = (ProgressBar) findViewById(R.id.progressBar);
         status = (TextView) findViewById(R.id.status_textView);
         startButton  = (Button) findViewById(R.id.startButton);
         pauseButton  = (Button) findViewById(R.id.pauseButton);
         cancelButton = (Button) findViewById(R.id.cancelButton);
 
-        // test
-        imageView = (ImageView) findViewById(R.id.test_imageView);
         // receive intent
         Intent intent = getIntent();
 
-        // calculate things
+        // set initial text
+//        String pathname = intent.getStringArrayExtra("pathname").toString();
+//        String[] splitPaths = pathname.split("/");
+//        String filenameText = splitPaths[splitPaths.length - 1];
+//
+//        if (splitPaths.length > 0){
+//            filename.setText("filename: " + filenameText);
+//        } else {
+//            // actually we need to do something more than just set text
+//            filename.setText("Error: no such file or directory");
+//        }
+
+        // calculate initial QR code and prepare camera
         barcodeDetector = new BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.QR_CODE).build();
         cameraSource = new CameraSource.Builder(this, barcodeDetector).setFacing(1).setRequestedPreviewSize(640, 480).build();
         surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
@@ -121,48 +130,46 @@ public class SendActivity extends AppCompatActivity {
             }
         });
 
-        // set initial text
-        filename.setText("filename: " + intent.getStringExtra("filename"));
+        // calculate about file
+        //  // read and convert it to byte array
+//        file = new File(pathname);
+//        int fileLength = (int) file.length();
+//        byte[] bytes = new byte[fileLength];
+//
+//        try {
+//            FileInputStream fileInputStream = new FileInputStream(file);
+//            fileInputStream.read(bytes);
+//            fileInputStream.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
+        // file segmentation
+        // int part = Math.ceil(fileLength / 20);
+
+        // set progress bar
         status.setText("0%");
 
-        // set on xml instead
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // generate QR code
+                // generate initial QR code
                 bitmap = qrGenerator("www.google.co.th/");
 
-                Log.e("tag","set surface size to 0, 0");
-                // hide surface view by set both its sizes to 0
-                surfaceView.getHolder().setFixedSize(0,0);
+                // hide surface view by set both its
+                // height: match-parent, height: 0, weight: 0
+                LinearLayout.LayoutParams surfaceViewParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0);
+                surfaceViewParams.weight = 0.0f;
+                surfaceView.setLayoutParams(surfaceViewParams);
 
-                // render QR code to image view and set its size to
+                // render QR code to image view and show by set its
+                // height: match-parent, height: 0, weight: 1
                 imageView.setImageBitmap(bitmap);
-//                imageView.getLayoutParams().height = LinearLayout.LayoutParams.WRAP_CONTENT;
-//                imageView.getLayoutParams().width = LinearLayout.LayoutParams.MATCH_PARENT;
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0);
-                params.weight = 1.0f;
-                imageView.setLayoutParams(params);
+                LinearLayout.LayoutParams imageViewParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0);
+                imageViewParams.weight = 1.0f;
+                imageView.setLayoutParams(imageViewParams);
 
-//                SurfaceHolder holder = displayView.getHolder();
-//                Canvas canvas = null;
-//                try {
-//                    canvas = holder.lockCanvas(null);
-//                    synchronized (holder) {
-//                        draw(canvas, bitmap);
-//                    }
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                } finally {
-//                    Log.e("tag", "b4 if");
-//                    if (canvas != null) {
-//                        Log.e("tag", "canvas != null");
-//                        displayView.getHolder().unlockCanvasAndPost(canvas);
-//                    } else {
-//                        Log.e("tag", "canvas == null");
-//                    }
-//                }
-
+                // transfer the file below this (?)
             }
         });
         pauseButton.setOnClickListener(new View.OnClickListener() {
@@ -185,7 +192,7 @@ public class SendActivity extends AppCompatActivity {
 
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
         try {
-            BitMatrix bitMatrix = multiFormatWriter.encode(rawData, BarcodeFormat.QR_CODE, 500, 500);
+            BitMatrix bitMatrix = multiFormatWriter.encode(rawData, BarcodeFormat.QR_CODE, 750, 750);
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             bitmap = barcodeEncoder.createBitmap(bitMatrix);
         } catch (WriterException e) {
@@ -194,10 +201,4 @@ public class SendActivity extends AppCompatActivity {
 
         return bitmap;
     }
-
-//    private void draw(Canvas canvas, Bitmap bitmap) {
-//        canvas.drawColor(Color.BLACK);
-//        canvas.drawBitmap(bitmap, 0, 0 , null);
-//    }
-
 }
