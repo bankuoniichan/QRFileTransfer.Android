@@ -26,7 +26,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void startTimer() {
-        final Intent intent = new Intent(SplashActivity.this, HomeActivity.class);
+        final Intent intent = new Intent(SplashActivity.this, SendActivity.class);
         Thread timer = new Thread(){
             public void run(){
                 try{
