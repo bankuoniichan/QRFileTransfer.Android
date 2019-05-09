@@ -32,7 +32,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onGuestClick(View view) {
-        Intent intent = new Intent(LoginActivity.this, HistoryActivity.class);
+        Intent intent = new Intent(LoginActivity.this, SendActivity.class);
         startActivity(intent);
     }
 
