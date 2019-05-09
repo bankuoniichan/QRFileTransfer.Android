@@ -44,18 +44,28 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void checkFilePermission() {
-        if(ContextCompat.checkSelfPermission(SplashActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED){
-            String[] permission = {
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.INTERNET
-            };
-            ActivityCompat.requestPermissions(this, permission, 0);
+        String[] permissions = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.CAMERA,
+                Manifest.permission.INTERNET
+        };
+
+        if(!allGranted(permissions)){
+            ActivityCompat.requestPermissions(this, permissions, 0);
         } else {
             startTimer();
         }
+    }
+
+    private boolean allGranted(String[] permissions) {
+        for(String permission: permissions){
+            if(ContextCompat.checkSelfPermission(SplashActivity.this, permission)
+                    != PackageManager.PERMISSION_GRANTED){
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
