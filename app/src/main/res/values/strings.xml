@@ -3,4 +3,6 @@
     <string name="menu_send">Send</string>
     <string name="menu_receive">Receive</string>
     <string name="menu_history">History</string>
+    <string name="file_selected">File Selected</string>
+    <string name="send">SEND</string>
 </resources>
