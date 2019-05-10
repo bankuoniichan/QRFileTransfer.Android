@@ -14,6 +14,7 @@ import android.provider.DocumentsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
@@ -204,7 +205,7 @@ public class SendActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // generate initial QR code
-                bitmap = qrEncoder(stringHeader, qrCodeImageSize, "HEADER");
+                bitmap = qrEncoder(stringHeader, qrCodeImageSize, "H");
 
                 // hide surface view && render QR code to image view then show it
                 setViewLayoutParams(surfaceView, 0.0f);
@@ -264,7 +265,7 @@ public class SendActivity extends AppCompatActivity {
         Bitmap bitmap = null;
         // old version content is pure rawData > String content = rawData;
         // maybe attach something before rawData like
-        String content = headerType + " " + progress + " " + rawData;
+        String content = headerType  + progress + " " + rawData;
 
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
         try {
@@ -306,11 +307,12 @@ public class SendActivity extends AppCompatActivity {
         updateProgressBar();
 
         Log.e(progress+" ", "BLOCK");
-        int maxBound = (progress * blockSize + 1) > header.fileSize? header.fileSize: (progress * blockSize + 1);
-        String currentByteSet = new String(Arrays.copyOfRange(bytes, (progress - 1) * blockSize,maxBound));
+        int maxBound = (progress * blockSize) > header.fileSize? header.fileSize: (progress * blockSize);
+        String currentByteSet = Base64.encodeToString(Arrays.copyOfRange(bytes, (progress - 1) * blockSize,maxBound), Base64.DEFAULT);
         Log.e((progress - 1) * blockSize + "",maxBound + "");
-        Bitmap cbsBitmap = qrEncoder(currentByteSet, qrCodeImageSize, "BLOCK");
+        Bitmap cbsBitmap = qrEncoder(currentByteSet, qrCodeImageSize, "B");
         imageView.setImageBitmap(cbsBitmap);
+
 
         if (progress == header.blockNumber) {
             Log.e(progress+"???", header.blockNumber+"???");

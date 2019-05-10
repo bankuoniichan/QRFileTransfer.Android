@@ -12,6 +12,7 @@ import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
@@ -242,7 +243,7 @@ public class ReceiveActivity extends AppCompatActivity {
         updateProgressBar();
 
         // save content to byte buffer
-        byte[] byteContentBlock = contentBlock.getBytes(StandardCharsets.UTF_8);
+        byte[] byteContentBlock = Base64.decode(contentBlock, Base64.DEFAULT);
         byteBuffer.put(byteContentBlock);
 
         // receive response
@@ -308,9 +309,9 @@ public class ReceiveActivity extends AppCompatActivity {
 
         Log.e("tag", rawText);
 
-        String receivedStatus = rawText.split(" ")[0];
-        int responseProgress = Integer.parseInt(rawText.split(" ")[1]);
-        String contentBlock = rawText.split(" ")[2];
+        String receivedStatus = rawText.substring(0, 1);
+        int responseProgress = Integer.parseInt(rawText.substring(1, rawText.indexOf(" ")));
+        String contentBlock = rawText.substring(rawText.indexOf(" ")+1);
 
 
 
@@ -320,7 +321,7 @@ public class ReceiveActivity extends AppCompatActivity {
             Boolean validProgress = responseProgress == progress + 1;
 
             // wait until receive new acknowledge
-            if (validProgress && receivedStatus.equals("BLOCK")) {
+            if (validProgress && receivedStatus.equals("B")) {
                 Log.e(header.fileSize+"",byteBuffer.position()+"?????");
                 receive(contentBlock);
             }
@@ -328,7 +329,7 @@ public class ReceiveActivity extends AppCompatActivity {
             // after send header, wait for acknowledge's header which progress value is -1
             Boolean validProgress = responseProgress == 0;
 
-            if (validProgress && receivedStatus.equals("HEADER")) {
+            if (validProgress && receivedStatus.equals("H")) {
                 status = "receive";
                 isReceiving = true;
 
