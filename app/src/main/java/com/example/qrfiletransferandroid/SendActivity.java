@@ -215,10 +215,10 @@ public class SendActivity extends AppCompatActivity {
                 SimpleDateFormat simpleDateFormat_time = new SimpleDateFormat("hh:mm:ss");
                 String time = simpleDateFormat_time.format(new Date());
                 String fileName = "TestFile";
-                Log.e("Type: ",type);
-                Log.e("FileName: ",fileName);
-                Log.e("Date: ",date);
-                Log.e("Time: ",time);
+//                Log.e("Type: ",type);
+//                Log.e("FileName: ",fileName);
+//                Log.e("Date: ",date);
+//                Log.e("Time: ",time);
 
                 History history = new History();
                 history.setType(type);
@@ -344,7 +344,7 @@ public class SendActivity extends AppCompatActivity {
         String rawText = qrCodes.valueAt(0).displayValue;
         String responseStatus = rawText.split(" ")[0];
         int responseProgress = Integer.parseInt(rawText.split(" ")[1]);
-
+        Log.e("Tagggg",rawText);
         if (status.equals("send")) {
             // valid progress : is response's progress same as current one
             Boolean validProgress = responseProgress == progress;
@@ -360,7 +360,7 @@ public class SendActivity extends AppCompatActivity {
             }
         } else if (status.equals("w8 ack h8")) {
             // after send header, wait for acknowledge's header which progress value is -1
-            Boolean validProgress = responseProgress == -1;
+            Boolean validProgress = responseProgress == 0;
 
             if (validProgress && responseStatus.equals("HEADER_OK")) {
                 status = "send";
