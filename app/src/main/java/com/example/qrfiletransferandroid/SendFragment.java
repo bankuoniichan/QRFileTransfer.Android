@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,6 +107,7 @@ public class SendFragment extends Fragment {
     RecyclerView fileList;
     File[] files;
     Snackbar snackbar;
+    FileListItemAdapter adapter;
 
     public SendFragment() {
 
@@ -126,7 +128,7 @@ public class SendFragment extends Fragment {
         fileList.setLayoutManager(new LinearLayoutManager(container.getContext()));
         fileList.setHasFixedSize(true);
         getFiles();
-        final FileListItemAdapter adapter = new FileListItemAdapter(files);
+        adapter = new FileListItemAdapter(files);
         fileList.setAdapter(adapter);
 
         snackbar = Snackbar
@@ -147,17 +149,22 @@ public class SendFragment extends Fragment {
     private void getFiles() {
         String extPath = Environment.getExternalStorageDirectory().toString();
         File dir = new File(extPath, "Download/qrk");
-        files = dir.listFiles();
+        files = dir.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return file.isFile();
+            }
+        });
     }
 
     void send(String filepath) {
         Intent intent = new Intent(getContext(), SendActivity.class);
         intent.putExtra("pathname", filepath);
-        startActivityForResult(intent, 0);
+        startActivityForResult(intent, 1);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
+    public void deactivate() {
+        adapter.deactivateItem();
+        snackbar.dismiss();
     }
 }
