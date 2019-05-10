@@ -14,6 +14,7 @@ import android.provider.DocumentsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
@@ -306,11 +307,12 @@ public class SendActivity extends AppCompatActivity {
         updateProgressBar();
 
         Log.e(progress+" ", "BLOCK");
-        int maxBound = (progress * blockSize + 1) > header.fileSize? header.fileSize: (progress * blockSize + 1);
-        String currentByteSet = new String(Arrays.copyOfRange(bytes, (progress - 1) * blockSize,maxBound));
+        int maxBound = (progress * blockSize) > header.fileSize? header.fileSize: (progress * blockSize);
+        String currentByteSet = Base64.encodeToString(Arrays.copyOfRange(bytes, (progress - 1) * blockSize,maxBound), Base64.DEFAULT);
         Log.e((progress - 1) * blockSize + "",maxBound + "");
         Bitmap cbsBitmap = qrEncoder(currentByteSet, qrCodeImageSize, "B");
         imageView.setImageBitmap(cbsBitmap);
+
 
         if (progress == header.blockNumber) {
             Log.e(progress+"???", header.blockNumber+"???");
