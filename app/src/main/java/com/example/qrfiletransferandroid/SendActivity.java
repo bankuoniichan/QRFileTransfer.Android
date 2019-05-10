@@ -204,7 +204,7 @@ public class SendActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // generate initial QR code
-                bitmap = qrEncoder(stringHeader, qrCodeImageSize, "HEADER");
+                bitmap = qrEncoder(stringHeader, qrCodeImageSize, "H");
 
                 // hide surface view && render QR code to image view then show it
                 setViewLayoutParams(surfaceView, 0.0f);
@@ -264,7 +264,7 @@ public class SendActivity extends AppCompatActivity {
         Bitmap bitmap = null;
         // old version content is pure rawData > String content = rawData;
         // maybe attach something before rawData like
-        String content = headerType + " " + progress + " " + rawData;
+        String content = headerType  + progress + " " + rawData;
 
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
         try {
@@ -309,7 +309,7 @@ public class SendActivity extends AppCompatActivity {
         int maxBound = (progress * blockSize + 1) > header.fileSize? header.fileSize: (progress * blockSize + 1);
         String currentByteSet = new String(Arrays.copyOfRange(bytes, (progress - 1) * blockSize,maxBound));
         Log.e((progress - 1) * blockSize + "",maxBound + "");
-        Bitmap cbsBitmap = qrEncoder(currentByteSet, qrCodeImageSize, "BLOCK");
+        Bitmap cbsBitmap = qrEncoder(currentByteSet, qrCodeImageSize, "B");
         imageView.setImageBitmap(cbsBitmap);
 
         if (progress == header.blockNumber) {

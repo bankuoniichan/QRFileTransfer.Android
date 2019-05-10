@@ -308,9 +308,9 @@ public class ReceiveActivity extends AppCompatActivity {
 
         Log.e("tag", rawText);
 
-        String receivedStatus = rawText.split(" ")[0];
-        int responseProgress = Integer.parseInt(rawText.split(" ")[1]);
-        String contentBlock = rawText.split(" ")[2];
+        String receivedStatus = rawText.substring(0, 1);
+        int responseProgress = Integer.parseInt(rawText.substring(1, rawText.indexOf(" ")));
+        String contentBlock = rawText.substring(rawText.indexOf(" "));
 
 
 
