@@ -1,5 +1,6 @@
 package com.example.qrfiletransferandroid;
 
+import android.arch.persistence.room.Room;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -12,14 +13,16 @@ public class HomeActivity extends AppCompatActivity {
 
     final Fragment send = new SendFragment().withColor(R.color.white);
     final Fragment receive = new SendFragment().withColor(R.color.dark_pink);
-    final Fragment history = new SendFragment().withColor(R.color.dark_brown);
+    final Fragment history = new HistoryFragment();
     final FragmentManager fm = getSupportFragmentManager();
     Fragment activeFragment = send;
+    public static MyAppDatabase myAppDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        myAppDatabase = MyAppDatabase.getAppDatabase(getApplicationContext());
 
         fm.beginTransaction().add(R.id.main_container, history, "3").hide(history).commit();
         fm.beginTransaction().add(R.id.main_container, receive, "2").hide(receive).commit();
