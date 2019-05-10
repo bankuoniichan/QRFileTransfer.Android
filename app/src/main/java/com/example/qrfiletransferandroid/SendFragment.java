@@ -93,8 +93,10 @@ public class SendFragment extends Fragment {
         }
 
         public void deactivateItem() {
-            active.setBackgroundColor(getResources().getColor(R.color.white));
-            active = null;
+            if(active != null){
+                active.setBackgroundColor(getResources().getColor(R.color.white));
+                active = null;
+            }
         }
 
         public String getSelectedFilePath() {
