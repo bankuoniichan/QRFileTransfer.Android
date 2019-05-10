@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -147,7 +148,12 @@ public class SendFragment extends Fragment {
     private void getFiles() {
         String extPath = Environment.getExternalStorageDirectory().toString();
         File dir = new File(extPath, "Download");
-        files = dir.listFiles();
+        files = dir.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return file.isFile();
+            }
+        });
     }
 
     void send(String filepath) {
