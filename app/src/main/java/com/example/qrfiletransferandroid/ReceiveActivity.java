@@ -158,24 +158,10 @@ public class ReceiveActivity extends AppCompatActivity {
             }
         });
 
-        // set progress bar
-        setInitialProgressBar(blockNumber);
-        updateProgressBar();
-
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // generate initial response QR code
-                stringResponse = "";
-                bitmap = qrEncoder(stringResponse, qrCodeImageSize, "HEADER_OK");
-
-                // hide surface view && render QR code to image view then show it
-                setViewLayoutParams(surfaceView, 0.0f);
-                setViewLayoutParams(imageView, 1.0f);
-                imageView.setImageBitmap(bitmap);
-
-                // transfer the file below this (?)
-                status = "w8 ack h8";
+                status = "ready";
             }
         });
         pauseButton.setOnClickListener(new View.OnClickListener() {
@@ -308,44 +294,49 @@ public class ReceiveActivity extends AppCompatActivity {
         String rawText = qrCodes.valueAt(0).displayValue;
         String receivedStatus = rawText.split(" ")[0];
         int responseProgress = Integer.parseInt(rawText.split(" ")[1]);
-        String contentBlock = "";
+        String contentBlock = rawText.split(" ")[2];
 
-        // HEADER's rawText won't have content
-        if(rawText.length() > 2) {
-            contentBlock = rawText.split(" ")[2];
-        }
-
-        if (status == "receive") {
+        if (status.equals("receive")) {
             // valid progress : is response's progress same as current one
             Boolean validProgress = responseProgress == progress;
 
             // wait until receive new acknowledge
-            if (validProgress) {
-                if (receivedStatus == "BLOCK") {
-                    receive(contentBlock);
-                    updateProgressBar();
-                }
+            if (validProgress && receivedStatus.equals("BLOCK")) {
+                receive(contentBlock);
+                updateProgressBar();
             }
-        } else if (status == "ready") {
+        } else if (status.equals("ready")) {
             // after send header, wait for acknowledge's header which progress value is -1
             Boolean validProgress = responseProgress == -1;
 
-            if (validProgress && receivedStatus == "HEADER") {
+            if (validProgress && receivedStatus.equals("HEADER")) {
                 status = "receive";
                 isReceiving = true;
 
                 // save header
                 try {
-                    header.fileName = contentBlock.split(" ")[0];
-                    header.blockNumber = Integer.parseInt(contentBlock.split(" ")[1]);
-                    header.blockSize = Integer.parseInt(contentBlock.split(" ")[2]);
-                    header.md5 = contentBlock.split(" ")[3].getBytes();
+                    header.fileName = contentBlock.split("_")[0];
+                    header.blockNumber = Integer.parseInt(contentBlock.split("_")[1]);
+                    header.blockSize = Integer.parseInt(contentBlock.split("_")[2]);
+                    header.md5 = contentBlock.split("_")[3].getBytes();
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
+                // set initial progress bar
+                setInitialProgressBar(header.blockNumber);
                 updateProgressBar();
+
+                // generate initial response QR code
+                stringResponse = "";
+                bitmap = qrEncoder(stringResponse, qrCodeImageSize, "HEADER_OK");
+
+                // hide surface view && render QR code to image view then show it
+                setViewLayoutParams(surfaceView, 0.0f);
+                setViewLayoutParams(imageView, 1.0f);
+                imageView.setImageBitmap(bitmap);
+
             }
         }
     }

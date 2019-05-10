@@ -75,7 +75,7 @@ public class SendActivity extends AppCompatActivity {
     private int qrCodeImageSize = 1200;
 
     private Boolean isSending = false;
-    private String status = "propmt";
+    private String status = "prompt";
     private int progress;
     public class Header {
         int blockNumber;
@@ -192,7 +192,7 @@ public class SendActivity extends AppCompatActivity {
         
         // create header
         header = new Header(blockNumber, blockSize, filenameText, md5Calculator(bytes));
-        stringHeader = header.fileName + " " + header.blockNumber + " " + header.blockSize + " " + header.md5;
+        stringHeader = header.fileName + "_" + header.blockNumber + "_" + header.blockSize + "_" + header.md5;
 
         // set progress bar
         setInitialProgressBar(blockNumber);
@@ -309,18 +309,22 @@ public class SendActivity extends AppCompatActivity {
         if (progress == blockNumber) {
             status = "complete";
             vibrate(3000);
+
+            // do something
         }
     }
 
     private void pause() {
         // set sending-flag and toggle pause button
         isSending = false;
+        status="pause";
         pauseButton.setText("continue");
     }
 
     private void resume() {
         // set sending-flag and toggle pause button back
         isSending = true;
+        status="send";
         pauseButton.setText("pause");
     }
 
@@ -341,24 +345,24 @@ public class SendActivity extends AppCompatActivity {
         String responseStatus = rawText.split(" ")[0];
         int responseProgress = Integer.parseInt(rawText.split(" ")[1]);
 
-        if (responseStatus == "PAUSE_REQUEST") { pause(); }
-        else if (responseStatus == "RESUME_REQUEST") { resume(); }
-        else if (status == "send") {
+        if (status.equals("send")) {
             // valid progress : is response's progress same as current one
             Boolean validProgress = responseProgress == progress;
 
-            // wait until receive new acknowledge
             if (validProgress) {
-                if (responseStatus == "BLOCK_OK") {
+                // wait until receive new acknowledge
+                if (responseStatus.equals("PAUSE_REQUEST")) { pause(); }
+                else if (responseStatus.equals("RESUME_REQUEST")) { resume(); }
+                else if (responseStatus.equals("BLOCK_OK")) {
                     send();
                     updateProgressBar();
                 }
             }
-        } else if (status == "w8 ack h8") {
+        } else if (status.equals("w8 ack h8")) {
             // after send header, wait for acknowledge's header which progress value is -1
             Boolean validProgress = responseProgress == -1;
 
-            if (validProgress && responseStatus == "HEADER_OK") {
+            if (validProgress && responseStatus.equals("HEADER_OK")) {
                 status = "send";
                 isSending = true;
                 send();
