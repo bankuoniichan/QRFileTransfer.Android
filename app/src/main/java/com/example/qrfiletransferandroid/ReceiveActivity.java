@@ -182,7 +182,8 @@ public class ReceiveActivity extends AppCompatActivity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // do another thing
+                setResult(-1);
+                finish();
             }
         });
 
