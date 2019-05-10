@@ -82,12 +82,14 @@ public class SendActivity extends AppCompatActivity {
         int blockSize;
         String fileName;
         byte[] md5;
+        int fileSize;
 
-        public Header(int blockNumber,int blockSize,String fileName,byte[] md5) {
+        public Header(int blockNumber,int blockSize,String fileName,byte[] md5, int fileSize) {
             this.blockNumber = blockNumber;
             this.blockSize = blockSize;
             this.fileName = fileName;
             this.md5 = md5;
+            this.fileSize = fileSize;
         }
     };
 
@@ -185,14 +187,14 @@ public class SendActivity extends AppCompatActivity {
         // // blockSize from QR code size
         // hard code for unnamed.jpd > 7886 length / 512 = 16 block
         int maxBlockSize = 512;
-        blockSize = 512;
+        blockSize = 128;
 
         // // blockNumber can obtain from 'fileLength / blockSize'
-        blockNumber = 16;
+        blockNumber = (int)(1+fileLength/ blockSize);
         
         // create header
-        header = new Header(blockNumber, blockSize, filenameText, md5Calculator(bytes));
-        stringHeader = header.fileName + "_" + header.blockNumber + "_" + header.blockSize + "_" + header.md5;
+        header = new Header(blockNumber, blockSize, filenameText, md5Calculator(bytes), fileLength);
+        stringHeader = header.fileName + "?" + header.blockNumber + "?" + header.blockSize + "?" + header.md5 + "?" + header.fileSize;
 
         // set progress bar
         setInitialProgressBar(blockNumber);
@@ -215,10 +217,10 @@ public class SendActivity extends AppCompatActivity {
                 SimpleDateFormat simpleDateFormat_time = new SimpleDateFormat("hh:mm:ss");
                 String time = simpleDateFormat_time.format(new Date());
                 String fileName = "TestFile";
-                Log.e("Type: ",type);
-                Log.e("FileName: ",fileName);
-                Log.e("Date: ",date);
-                Log.e("Time: ",time);
+//                Log.e("Type: ",type);
+//                Log.e("FileName: ",fileName);
+//                Log.e("Date: ",date);
+//                Log.e("Time: ",time);
 
                 History history = new History();
                 history.setType(type);
@@ -301,12 +303,17 @@ public class SendActivity extends AppCompatActivity {
     private void send() {
         // send
         progress++;
+        updateProgressBar();
 
-        String currentByteSet = new String(Arrays.copyOfRange(bytes, (progress - 1) * blockSize,progress * blockSize - 1));
+        Log.e(progress+" ", "BLOCK");
+        int maxBound = (progress * blockSize + 1) > header.fileSize? header.fileSize: (progress * blockSize + 1);
+        String currentByteSet = new String(Arrays.copyOfRange(bytes, (progress - 1) * blockSize,maxBound));
+        Log.e((progress - 1) * blockSize + "",maxBound + "");
         Bitmap cbsBitmap = qrEncoder(currentByteSet, qrCodeImageSize, "BLOCK");
         imageView.setImageBitmap(cbsBitmap);
 
-        if (progress == blockNumber) {
+        if (progress == header.blockNumber) {
+            Log.e(progress+"???", header.blockNumber+"???");
             status = "complete";
             vibrate(3000);
 
@@ -336,7 +343,7 @@ public class SendActivity extends AppCompatActivity {
 
     private void updateProgressBar() {
         progressBar.setProgress(progress);
-        statusText.setText(String.valueOf(progress/blockNumber).concat("%"));
+        statusText.setText(String.valueOf(progress * 100/blockNumber).concat("%"));
     }
 
     private void qrHandler(SparseArray<Barcode> qrCodes) {
@@ -348,14 +355,13 @@ public class SendActivity extends AppCompatActivity {
         if (status.equals("send")) {
             // valid progress : is response's progress same as current one
             Boolean validProgress = responseProgress == progress;
-
+            Log.e(progress+">>>>>>>>>>>>>>>>"+header.blockNumber,rawText);
             if (validProgress) {
                 // wait until receive new acknowledge
                 if (responseStatus.equals("PAUSE_REQUEST")) { pause(); }
                 else if (responseStatus.equals("RESUME_REQUEST")) { resume(); }
                 else if (responseStatus.equals("BLOCK_OK")) {
                     send();
-                    updateProgressBar();
                 }
             }
         } else if (status.equals("w8 ack h8")) {
