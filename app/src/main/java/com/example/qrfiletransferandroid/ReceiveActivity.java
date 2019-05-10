@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
+import android.os.Environment;
 import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -82,16 +83,20 @@ public class ReceiveActivity extends AppCompatActivity {
         int blockSize;
         String fileName;
         byte[] md5;
+        int fileSize;
 
-        public Header(int blockNumber,int blockSize,String fileName,byte[] md5) {
+        public Header() {}
+
+        public Header(int blockNumber,int blockSize,String fileName,byte[] md5, int fileSize) {
             this.blockNumber = blockNumber;
             this.blockSize = blockSize;
             this.fileName = fileName;
             this.md5 = md5;
+            this.fileSize = fileSize;
         }
     };
 
-    private Header header;
+    private Header header = new Header();
     private String stringResponse;
 
     @Override
@@ -161,6 +166,8 @@ public class ReceiveActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                startButton.setEnabled(false);
+                statusText.setText("Started");
                 status = "ready";
             }
         });
@@ -232,6 +239,7 @@ public class ReceiveActivity extends AppCompatActivity {
 
     private void receive(String contentBlock) {
         progress++;
+        updateProgressBar();
 
         // save content to byte buffer
         byte[] byteContentBlock = contentBlock.getBytes(StandardCharsets.UTF_8);
@@ -242,13 +250,17 @@ public class ReceiveActivity extends AppCompatActivity {
         Bitmap cbsBitmap = qrEncoder("", qrCodeImageSize, "BLOCK_OK");
         imageView.setImageBitmap(cbsBitmap);
 
-        if (progress == blockNumber) {
+        if (progress == header.blockNumber) {
+            Log.e(progress+"???", header.blockNumber+"???");
             status = "complete";
             vibrate(3000);
 
             // write file from byte buffer
             try {
-                FileOutputStream fileOutputStream = new FileOutputStream(header.fileName);
+                String extPath = Environment.getExternalStorageDirectory().toString();
+                File file = new File(extPath, "Download/qrk/" + header.fileName);
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+//                FileOutputStream fileOutputStream = new FileOutputStream(header.fileName);
                 fileOutputStream.write(byteBuffer.array());
                 fileOutputStream.close();
             } catch (Exception e) {
@@ -286,28 +298,35 @@ public class ReceiveActivity extends AppCompatActivity {
 
     private void updateProgressBar() {
         progressBar.setProgress(progress);
-        statusText.setText(String.valueOf(progress/blockNumber).concat("%"));
+        statusText.setText(String.valueOf(progress*100/header.blockNumber).concat("%"));
     }
 
     private void qrHandler(SparseArray<Barcode> qrCodes) {
         // rawText is an header with data that is form "${receivedStatus} ${receivedProgress} ${contentBlock}"
+
         String rawText = qrCodes.valueAt(0).displayValue;
+
+        Log.e("tag", rawText);
+
         String receivedStatus = rawText.split(" ")[0];
         int responseProgress = Integer.parseInt(rawText.split(" ")[1]);
         String contentBlock = rawText.split(" ")[2];
 
+
+
         if (status.equals("receive")) {
+            Log.e(progress+ "", responseProgress+"");
             // valid progress : is response's progress same as current one
-            Boolean validProgress = responseProgress == progress;
+            Boolean validProgress = responseProgress == progress + 1;
 
             // wait until receive new acknowledge
             if (validProgress && receivedStatus.equals("BLOCK")) {
+                Log.e(header.fileSize+"",byteBuffer.position()+"?????");
                 receive(contentBlock);
-                updateProgressBar();
             }
         } else if (status.equals("ready")) {
             // after send header, wait for acknowledge's header which progress value is -1
-            Boolean validProgress = responseProgress == -1;
+            Boolean validProgress = responseProgress == 0;
 
             if (validProgress && receivedStatus.equals("HEADER")) {
                 status = "receive";
@@ -315,10 +334,20 @@ public class ReceiveActivity extends AppCompatActivity {
 
                 // save header
                 try {
-                    header.fileName = contentBlock.split("_")[0];
-                    header.blockNumber = Integer.parseInt(contentBlock.split("_")[1]);
-                    header.blockSize = Integer.parseInt(contentBlock.split("_")[2]);
-                    header.md5 = contentBlock.split("_")[3].getBytes();
+                    Log.e("tag2", contentBlock);
+
+                    String[] tHeader = contentBlock.split("[?]");
+
+                    Log.e("tag2-0", tHeader[0]);
+                    Log.e("tag2-1", tHeader[1]);
+                    Log.e("tag2-2", tHeader[2]);
+                    Log.e("tag2-3", tHeader[3]);
+
+                    header.fileName = tHeader[0];
+                    header.blockNumber = Integer.parseInt(tHeader[1]);
+                    header.blockSize = Integer.parseInt(tHeader[2]);
+                    header.md5 = tHeader[3].getBytes();
+                    header.fileSize = Integer.parseInt(tHeader[4]);
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -327,6 +356,9 @@ public class ReceiveActivity extends AppCompatActivity {
                 // set initial progress bar
                 setInitialProgressBar(header.blockNumber);
                 updateProgressBar();
+
+                // allocate byte buffer
+                 byteBuffer = ByteBuffer.allocate(header.fileSize);
 
                 // generate initial response QR code
                 stringResponse = "";

@@ -12,7 +12,7 @@ import android.view.MenuItem;
 
 public class HomeActivity extends AppCompatActivity {
 
-    final SendFragment send = new SendFragment().withColor(R.color.white);
+    final SendFragment send = new SendFragment();
     final HistoryFragment history = new HistoryFragment();
     final FragmentManager fm = getSupportFragmentManager();
     Fragment activeFragment = send;

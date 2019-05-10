@@ -39,12 +39,12 @@ public class HistoryFragment extends Fragment {
 //            Log.e("-----","-----");
 //        }
         MyRecyclerAdapter adapter = new MyRecyclerAdapter(history);
-        adapter.setItemClickListener(new MyRecyclerAdapter.ItemClickListener() {
-            @Override
-            public void onItemClick(int position) {
-                Log.d("Name", "Date : " + position);
-            }
-        });
+//        adapter.setItemClickListener(new MyRecyclerAdapter.ItemClickListener() {
+//            @Override
+//            public void onItemClick(int position) {
+//                Log.d("Name", "Date : " + position);
+//            }
+//        });
         recyclerView.setAdapter(adapter);
         return view;
     }
