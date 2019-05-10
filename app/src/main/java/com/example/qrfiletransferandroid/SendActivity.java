@@ -300,7 +300,7 @@ public class SendActivity extends AppCompatActivity {
     private void send() {
         // send
         progress++;
-        // ex. blockSize = 5 so we send 0 > 4 then 5 > 9 then 10 > 14
+
         String currentByteSet = new String(Arrays.copyOfRange(bytes, (progress - 1) * blockSize,progress * blockSize - 1));
         Bitmap cbsBitmap = qrEncoder(currentByteSet, qrCodeImageSize, "BLOCK");
         imageView.setImageBitmap(cbsBitmap);

@@ -146,7 +146,7 @@ public class SendFragment extends Fragment {
 
     private void getFiles() {
         String extPath = Environment.getExternalStorageDirectory().toString();
-        File dir = new File(extPath, "Download");
+        File dir = new File(extPath, "Download/qrk");
         files = dir.listFiles();
     }
 

@@ -36,9 +36,17 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import org.json.JSONObject;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Hashtable;
@@ -58,6 +66,7 @@ public class ReceiveActivity extends AppCompatActivity {
     private CameraSource cameraSource;
 
     private byte[] bytes;
+    private ByteBuffer byteBuffer;
     private Bitmap bitmap;
 
     private ImageView imageView;
@@ -65,8 +74,8 @@ public class ReceiveActivity extends AppCompatActivity {
     private int blockNumber;
     private int qrCodeImageSize = 1200;
 
-    private Boolean isSending = false;
-    private String status = "propmt";
+    private Boolean isReceiving = false;
+    private String status = "unready";
     private int progress;
     public class Header {
         int blockNumber;
@@ -83,7 +92,7 @@ public class ReceiveActivity extends AppCompatActivity {
     };
 
     private Header header;
-    private String stringHeader;
+    private String stringResponse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,8 +165,9 @@ public class ReceiveActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // generate initial QR code
-                bitmap = qrEncoder(stringHeader, qrCodeImageSize, "HEADER");
+                // generate initial response QR code
+                stringResponse = "";
+                bitmap = qrEncoder(stringResponse, qrCodeImageSize, "HEADER_OK");
 
                 // hide surface view && render QR code to image view then show it
                 setViewLayoutParams(surfaceView, 0.0f);
@@ -172,7 +182,7 @@ public class ReceiveActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // do something
-                if (isSending) {
+                if (isReceiving) {
                     pause();
                 } else {
                     resume();
@@ -193,11 +203,11 @@ public class ReceiveActivity extends AppCompatActivity {
         vibrator.vibrate(time);
     }
 
-    private Bitmap qrEncoder(String rawData, int blockSize, String headerType) {
+    private Bitmap qrEncoder(String rawData, int blockSize, String responseStatus) {
         Bitmap bitmap = null;
         // old version content is pure rawData > String content = rawData;
         // maybe attach something before rawData like
-        String content = headerType + " " + progress + " " + rawData;
+        String content = responseStatus + " " + progress + " " + rawData;
 
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
         try {
@@ -233,31 +243,52 @@ public class ReceiveActivity extends AppCompatActivity {
         return digest;
     }
 
-    private void send() {
-        // send
+    private void receive(String contentBlock) {
         progress++;
-        // ex. blockSize = 5 so we send 0 > 4 then 5 > 9 then 10 > 14
-        String currentByteSet = new String(Arrays.copyOfRange(bytes, (progress - 1) * blockSize,progress * blockSize - 1));
-        Bitmap cbsBitmap = qrEncoder(currentByteSet, qrCodeImageSize, "BLOCK");
+
+        // save content to byte buffer
+        byte[] byteContentBlock = contentBlock.getBytes(StandardCharsets.UTF_8);
+        byteBuffer.put(byteContentBlock);
+
+        // receive response
+        // create and show up acknowledge QR code
+        Bitmap cbsBitmap = qrEncoder("", qrCodeImageSize, "BLOCK_OK");
         imageView.setImageBitmap(cbsBitmap);
 
         if (progress == blockNumber) {
             status = "complete";
             vibrate(3000);
+
+            // write file from byte buffer
+            try {
+                FileOutputStream fileOutputStream = new FileOutputStream(header.fileName);
+                fileOutputStream.write(byteBuffer.array());
+                fileOutputStream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 //            finish();
         }
     }
 
     private void pause() {
-        // set sending-flag and toggle pause button
-        isSending = false;
+        // set receiving-flag and toggle pause button
+        isReceiving = false;
         pauseButton.setText("continue");
+
+        // create and show up pause-request QR code
+        Bitmap cbsBitmap = qrEncoder("", qrCodeImageSize, "PAUSE_REQUEST");
+        imageView.setImageBitmap(cbsBitmap);
     }
 
     private void resume() {
-        // set sending-flag and toggle pause button back
-        isSending = true;
+        // set receiving-flag and toggle pause button back
+        isReceiving = true;
         pauseButton.setText("pause");
+
+        // create and show up pause-request QR code
+        Bitmap cbsBitmap = qrEncoder("", qrCodeImageSize, "RESUME_REQUEST");
+        imageView.setImageBitmap(cbsBitmap);
     }
 
     private void setInitialProgressBar(int max) {
@@ -272,32 +303,47 @@ public class ReceiveActivity extends AppCompatActivity {
     }
 
     private void qrHandler(SparseArray<Barcode> qrCodes) {
-        // rawText is an acknowledge that is form "${responseStatus} ${responseProgress}"
+        // rawText is an header with data that is form "${receivedStatus} ${receivedProgress} ${contentBlock}"
         String rawText = qrCodes.valueAt(0).displayValue;
-        String responseStatus = rawText.split(" ")[0];
+        String receivedStatus = rawText.split(" ")[0];
         int responseProgress = Integer.parseInt(rawText.split(" ")[1]);
+        String contentBlock = "";
 
-        if (responseStatus == "PAUSE_REQUEST") { pause(); }
-        else if (responseStatus == "RESUME_REQUEST") { resume(); }
-        else if (status == "send") {
+        // HEADER's rawText won't have content
+        if(rawText.length() > 2) {
+            contentBlock = rawText.split(" ")[2];
+        }
+
+        if (status == "receive") {
             // valid progress : is response's progress same as current one
             Boolean validProgress = responseProgress == progress;
 
             // wait until receive new acknowledge
             if (validProgress) {
-                if (responseStatus == "BLOCK_OK") {
-                    send();
+                if (receivedStatus == "BLOCK") {
+                    receive(contentBlock);
                     updateProgressBar();
                 }
             }
-        } else if (status == "w8 ack h8") {
+        } else if (status == "ready") {
             // after send header, wait for acknowledge's header which progress value is -1
             Boolean validProgress = responseProgress == -1;
 
-            if (validProgress && responseStatus == "HEADER_OK") {
-                status = "send";
-                isSending = true;
-                send();
+            if (validProgress && receivedStatus == "HEADER") {
+                status = "receive";
+                isReceiving = true;
+
+                // save header
+                try {
+                    header.fileName = contentBlock.split(" ")[0];
+                    header.blockNumber = Integer.parseInt(contentBlock.split(" ")[1]);
+                    header.blockSize = Integer.parseInt(contentBlock.split(" ")[2]);
+                    header.md5 = contentBlock.split(" ")[3].getBytes();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 updateProgressBar();
             }
         }
