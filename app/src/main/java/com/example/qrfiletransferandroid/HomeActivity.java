@@ -1,6 +1,7 @@
 package com.example.qrfiletransferandroid;
 
 import android.arch.persistence.room.Room;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -11,9 +12,8 @@ import android.view.MenuItem;
 
 public class HomeActivity extends AppCompatActivity {
 
-    final Fragment send = new SendFragment().withColor(R.color.white);
-    final Fragment receive = new SendFragment().withColor(R.color.dark_pink);
-    final Fragment history = new HistoryFragment();
+    final SendFragment send = new SendFragment().withColor(R.color.white);
+    final HistoryFragment history = new HistoryFragment();
     final FragmentManager fm = getSupportFragmentManager();
     Fragment activeFragment = send;
     public static MyAppDatabase myAppDatabase;
@@ -24,8 +24,7 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         myAppDatabase = MyAppDatabase.getAppDatabase(getApplicationContext());
 
-        fm.beginTransaction().add(R.id.main_container, history, "3").hide(history).commit();
-        fm.beginTransaction().add(R.id.main_container, receive, "2").hide(receive).commit();
+        fm.beginTransaction().add(R.id.main_container, history, "2").hide(history).commit();
         fm.beginTransaction().add(R.id.main_container, send, "1").commit();
 
         BottomNavigationView nav = findViewById(R.id.bottom_nav);
@@ -38,11 +37,17 @@ public class HomeActivity extends AppCompatActivity {
                         activeFragment = send;
                         return true;
                     case R.id.item_receive:
-                        fm.beginTransaction().hide(activeFragment).show(receive).commit();
-                        activeFragment = receive;
-                        return true;
+                        if(activeFragment == send){
+                            send.deactivate();
+                        }
+                        Intent intent = new Intent(HomeActivity.this, ReceiveActivity.class);
+                        startActivityForResult(intent, 0);
+                        return false;
                     case R.id.item_history:
                         fm.beginTransaction().hide(activeFragment).show(history).commit();
+                        if(activeFragment == send){
+                            send.deactivate();
+                        }
                         activeFragment = history;
                         return true;
                 }
