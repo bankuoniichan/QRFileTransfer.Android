@@ -161,6 +161,8 @@ public class ReceiveActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                startButton.setEnabled(false);
+                statusText.setText("Started");
                 status = "ready";
             }
         });
@@ -296,6 +298,8 @@ public class ReceiveActivity extends AppCompatActivity {
         int responseProgress = Integer.parseInt(rawText.split(" ")[1]);
         String contentBlock = rawText.split(" ")[2];
 
+        Log.e("tag", rawText);
+
         if (status.equals("receive")) {
             // valid progress : is response's progress same as current one
             Boolean validProgress = responseProgress == progress;
@@ -307,7 +311,7 @@ public class ReceiveActivity extends AppCompatActivity {
             }
         } else if (status.equals("ready")) {
             // after send header, wait for acknowledge's header which progress value is -1
-            Boolean validProgress = responseProgress == -1;
+            Boolean validProgress = responseProgress == 0;
 
             if (validProgress && receivedStatus.equals("HEADER")) {
                 status = "receive";
@@ -315,6 +319,7 @@ public class ReceiveActivity extends AppCompatActivity {
 
                 // save header
                 try {
+                    Log.e("tag2", contentBlock);
                     header.fileName = contentBlock.split("_")[0];
                     header.blockNumber = Integer.parseInt(contentBlock.split("_")[1]);
                     header.blockSize = Integer.parseInt(contentBlock.split("_")[2]);

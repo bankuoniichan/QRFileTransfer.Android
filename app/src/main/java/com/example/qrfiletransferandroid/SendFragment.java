@@ -105,7 +105,6 @@ public class SendFragment extends Fragment {
 
     }
 
-    int color;
     RecyclerView fileList;
     File[] files;
     Snackbar snackbar;
@@ -115,16 +114,11 @@ public class SendFragment extends Fragment {
 
     }
 
-    public SendFragment withColor(int color) {
-        this.color = color;
-        return this;
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_send, container, false);
-        view.findViewById(R.id.layout).setBackgroundColor(getResources().getColor(color));
+        view.findViewById(R.id.layout).setBackgroundColor(getResources().getColor(R.color.white));
 
         fileList = view.findViewById(R.id.fileList);
         fileList.setLayoutManager(new LinearLayoutManager(container.getContext()));

@@ -360,7 +360,7 @@ public class SendActivity extends AppCompatActivity {
             }
         } else if (status.equals("w8 ack h8")) {
             // after send header, wait for acknowledge's header which progress value is -1
-            Boolean validProgress = responseProgress == -1;
+            Boolean validProgress = responseProgress == 0;
 
             if (validProgress && responseStatus.equals("HEADER_OK")) {
                 status = "send";

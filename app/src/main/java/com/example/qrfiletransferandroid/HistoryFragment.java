@@ -28,23 +28,23 @@ public class HistoryFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         MyAppDatabase myAppDatabase = HomeActivity.myAppDatabase;
         List<History> history = myAppDatabase.myDao().getHistory();
-        Log.e("DATABASE HAVE ",history.size()+" ROWS");
-        Log.e("**************","*****************");
-        for (History his : history){
-            Log.e("ID: ",his.getId()+"");
-            Log.e("Type: ",his.getType()+"");
-            Log.e("FileName: ",his.getFileName()+"");
-            Log.e("Date: ",his.getDate()+"");
-            Log.e("Time: ",his.getTime()+"");
-            Log.e("-----","-----");
-        }
+//        Log.e("DATABASE HAVE ",history.size()+" ROWS");
+//        Log.e("**************","*****************");
+//        for (History his : history){
+//            Log.e("ID: ",his.getId()+"");
+//            Log.e("Type: ",his.getType()+"");
+//            Log.e("FileName: ",his.getFileName()+"");
+//            Log.e("Date: ",his.getDate()+"");
+//            Log.e("Time: ",his.getTime()+"");
+//            Log.e("-----","-----");
+//        }
         MyRecyclerAdapter adapter = new MyRecyclerAdapter(history);
-        adapter.setItemClickListener(new MyRecyclerAdapter.ItemClickListener() {
-            @Override
-            public void onItemClick(int position) {
-                Log.d("Name", "Date : " + position);
-            }
-        });
+//        adapter.setItemClickListener(new MyRecyclerAdapter.ItemClickListener() {
+//            @Override
+//            public void onItemClick(int position) {
+//                Log.d("Name", "Date : " + position);
+//            }
+//        });
         recyclerView.setAdapter(adapter);
         return view;
     }
