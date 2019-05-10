@@ -37,7 +37,7 @@ public class HistoryFragment extends Fragment {
 //            Log.e("Date: ",his.getDate()+"");
 //            Log.e("Time: ",his.getTime()+"");
 //            Log.e("-----","-----");
-        }
+//        }
         MyRecyclerAdapter adapter = new MyRecyclerAdapter(history);
         adapter.setItemClickListener(new MyRecyclerAdapter.ItemClickListener() {
             @Override
