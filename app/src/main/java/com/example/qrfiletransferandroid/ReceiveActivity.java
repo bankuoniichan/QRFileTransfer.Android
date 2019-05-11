@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
@@ -50,7 +51,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Hashtable;
 
 public class ReceiveActivity extends AppCompatActivity {
@@ -63,6 +66,7 @@ public class ReceiveActivity extends AppCompatActivity {
     private Button startButton;
     private Button pauseButton;
     private Button cancelButton;
+    public static MyAppDatabase myAppDatabase;
 
     private BarcodeDetector barcodeDetector;
     private CameraSource cameraSource;
@@ -114,7 +118,7 @@ public class ReceiveActivity extends AppCompatActivity {
         startButton  = (Button) findViewById(R.id.startButton);
         pauseButton  = (Button) findViewById(R.id.pauseButton);
         cancelButton = (Button) findViewById(R.id.cancelButton);
-
+        myAppDatabase = MyAppDatabase.getAppDatabase(getApplicationContext());
         // receive intent
         Intent intent = getIntent();
 
@@ -255,6 +259,21 @@ public class ReceiveActivity extends AppCompatActivity {
             Log.e(progress+"???", header.blockNumber+"???");
             status = "complete";
             vibrate(3000);
+
+            String type = "Receive";
+            SimpleDateFormat simpleDateFormat_date = new SimpleDateFormat("dd/MM/yyyy");
+            String date = simpleDateFormat_date.format(new Date());
+            SimpleDateFormat simpleDateFormat_time = new SimpleDateFormat("hh:mm:ss");
+            String time = simpleDateFormat_time.format(new Date());
+            String fileName = header.fileName;
+            Log.e("RecieveActivity",type);
+            History history = new History();
+            history.setType(type);
+            history.setDate(date);
+            history.setTime(time);
+            history.setFileName(fileName);
+            myAppDatabase.myDao().addHistory(history);
+            Toast.makeText(getApplicationContext(),"History Added Successfully",Toast.LENGTH_SHORT).show();
 
             // write file from byte buffer
             try {

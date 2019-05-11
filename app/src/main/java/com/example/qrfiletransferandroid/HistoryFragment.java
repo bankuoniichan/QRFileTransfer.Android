@@ -28,16 +28,16 @@ public class HistoryFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         MyAppDatabase myAppDatabase = HomeActivity.myAppDatabase;
         List<History> history = myAppDatabase.myDao().getHistory();
-//        Log.e("DATABASE HAVE ",history.size()+" ROWS");
-//        Log.e("**************","*****************");
-//        for (History his : history){
-//            Log.e("ID: ",his.getId()+"");
-//            Log.e("Type: ",his.getType()+"");
-//            Log.e("FileName: ",his.getFileName()+"");
-//            Log.e("Date: ",his.getDate()+"");
-//            Log.e("Time: ",his.getTime()+"");
-//            Log.e("-----","-----");
-//        }
+        Log.e("DATABASE HAVE ",history.size()+" ROWS");
+        Log.e("**************","*****************");
+        for (History his : history){
+            Log.e("ID: ",his.getId()+"");
+            Log.e("Type: ",his.getType()+"");
+            Log.e("FileName: ",his.getFileName()+"");
+            Log.e("Date: ",his.getDate()+"");
+            Log.e("Time: ",his.getTime()+"");
+            Log.e("-----","-----");
+        }
         MyRecyclerAdapter adapter = new MyRecyclerAdapter(history);
 //        adapter.setItemClickListener(new MyRecyclerAdapter.ItemClickListener() {
 //            @Override
@@ -49,22 +49,4 @@ public class HistoryFragment extends Fragment {
         return view;
     }
 }
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_history);
-//        recyclerView = findViewById(R.id.historyView);
-//        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-//        recyclerView.setLayoutManager(layoutManager);
-//        String[][] data = {{"Top","20/05/2019"},{"Bank","15/03/2019"}};
-//        MyRecyclerAdapter adapter = new MyRecyclerAdapter(data);
-//        adapter.setItemClickListener(new MyRecyclerAdapter.ItemClickListener() {
-//            @Override
-//            public void onItemClick(int position) {
-//                Log.d("Name", "Date : " + position);
-//            }
-//        });
-//        recyclerView.setAdapter(adapter);
-//
-//    }
 

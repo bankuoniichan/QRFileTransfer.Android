@@ -55,5 +55,6 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
         nav.setSelectedItemId(R.id.item_send);
+
     }
 }

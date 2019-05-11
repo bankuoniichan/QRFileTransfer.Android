@@ -27,8 +27,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginClick(View view) {
-        Intent intent = new Intent(LoginActivity.this, ProfileActivity.class);
-        startActivityForResult(intent, ProfileActivity.LOGIN);
+//        Intent intent = new Intent(LoginActivity.this, ProfileActivity.class);
+//        startActivityForResult(intent, ProfileActivity.LOGIN);
+        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+        startActivity(intent);
     }
 
     public void onGuestClick(View view) {

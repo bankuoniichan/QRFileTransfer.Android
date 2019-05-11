@@ -211,25 +211,6 @@ public class SendActivity extends AppCompatActivity {
                 setViewLayoutParams(surfaceView, 0.0f);
                 setViewLayoutParams(imageView, 1.0f);
                 imageView.setImageBitmap(bitmap);
-                
-                String type = "Send";
-                SimpleDateFormat simpleDateFormat_date = new SimpleDateFormat("dd/MM/yyyy");
-                String date = simpleDateFormat_date.format(new Date());
-                SimpleDateFormat simpleDateFormat_time = new SimpleDateFormat("hh:mm:ss");
-                String time = simpleDateFormat_time.format(new Date());
-                String fileName = "TestFile";
-//                Log.e("Type: ",type);
-//                Log.e("FileName: ",fileName);
-//                Log.e("Date: ",date);
-//                Log.e("Time: ",time);
-
-                History history = new History();
-                history.setType(type);
-                history.setDate(date);
-                history.setTime(time);
-                history.setFileName(fileName);
-                myAppDatabase.myDao().addHistory(history);
-                Toast.makeText(getApplicationContext(),"History Added Successfully",Toast.LENGTH_SHORT).show();
 
                 // transfer the file below this (?)
                 status = "w8 ack h8";
@@ -320,6 +301,21 @@ public class SendActivity extends AppCompatActivity {
             vibrate(3000);
 
             // do something
+            String type = "Send";
+            SimpleDateFormat simpleDateFormat_date = new SimpleDateFormat("dd/MM/yyyy");
+            String date = simpleDateFormat_date.format(new Date());
+            SimpleDateFormat simpleDateFormat_time = new SimpleDateFormat("hh:mm:ss");
+            String time = simpleDateFormat_time.format(new Date());
+            String fileName = header.fileName;
+
+            History history = new History();
+            history.setType(type);
+            history.setDate(date);
+            history.setTime(time);
+            history.setFileName(fileName);
+            Log.e("history Added",history.getType());
+            myAppDatabase.myDao().addHistory(history);
+            Toast.makeText(getApplicationContext(),"History Added Successfully",Toast.LENGTH_SHORT).show();
         }
     }
 

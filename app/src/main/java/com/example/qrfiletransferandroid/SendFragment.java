@@ -151,6 +151,9 @@ public class SendFragment extends Fragment {
                 return file.isFile();
             }
         });
+        if(files == null) {
+            files = new File[]{};
+        }
     }
 
     void send(String filepath) {

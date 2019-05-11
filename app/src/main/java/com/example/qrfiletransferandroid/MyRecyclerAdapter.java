@@ -2,6 +2,7 @@ package com.example.qrfiletransferandroid;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +36,8 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.Vi
         }
 
         public void setItem(int pos) {
-            if (mDataSet.get(pos).getType() == "Receive") {
+            Log.e("TypeInMyRecycler",mDataSet.get(pos).getType());
+            if (mDataSet.get(pos).getType().equals("Receive")) {
             name.setText("You received "+mDataSet.get(pos).getFileName());
             date.setText("Date: " + mDataSet.get(pos).getDate()+" Time: " + mDataSet.get(pos).getTime());
             } else {
